@@ -3,6 +3,8 @@
 import { getPost } from "@/api";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
+
+
 export default function FetchButton() {
 const [data, setData] = useState<any>(null);
 const [loading, setLoading] = useState(false);
