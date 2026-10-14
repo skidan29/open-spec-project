@@ -27,9 +27,12 @@ const route = useRouter()
 
   return (
     <div>
+      <h1>Hello!</h1>
       <button onClick={handleClick} disabled={loading}>
         {loading ? 'Загрузка...' : 'Получить пост'}
       </button>
+
+      <button onClick={()=> {alert('Hello')}}>Alert</button>
 
       <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"onClick={()=>{route.back()}} >
        back 

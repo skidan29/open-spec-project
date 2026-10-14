@@ -10,6 +10,8 @@ import { getPost } from '@/api';
 // поэтому подменяем их на jest.fn() с нужным возвратом.
 const mockBack = jest.fn();
 
+const mockAlert = jest.fn();
+
 jest.mock('next/navigation', () => ({
   useParams: () => ({ id: '42' }), // фиксированный id для теста
   useRouter: () => ({
@@ -33,11 +35,36 @@ const mockedGetPost = jest.mocked(getPost);
 // === 3. Общие настройки перед каждым тестом ===
 beforeEach(() => {
   jest.clearAllMocks();
+  // Мокаем window.alert, чтобы реальный диалог не открывался в jsdom
+  jest.spyOn(window, 'alert').mockImplementation(mockAlert);
+  render(<FetchButton />);
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
 });
 
 describe('FetchButton', () => {
+  test('Есть заголовок h1 ',()=>{
+    // render(<FetchButton/>)
+
+    expect(screen.getByText('Hello!')).toBeInTheDocument();
+  })
+
+  test('кнопка алер Существует',()=>{
+    expect(screen.getByRole('button',{name:'Alert'})).toBeInTheDocument()
+  })
+
+  test('кнопка алер по нажатию вызывает alert', async ()=>{
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('button',{name:'Alert'}));
+    expect(mockAlert).toHaveBeenCalledTimes(1)
+    expect(mockAlert).toHaveBeenCalledWith('Hello')
+  })
+
   test('рендерит обе кнопки в начальном состоянии', () => {
-    render(<FetchButton />);
+    // render(<FetchButton />);
 
     expect(screen.getByRole('button', { name: 'Получить пост' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'back' })).toBeInTheDocument();
@@ -53,7 +80,7 @@ describe('FetchButton', () => {
 
     mockedGetPost.mockResolvedValueOnce(fakePost);
 
-    render(<FetchButton />);
+    // render(<FetchButton />);
 
     await user.click(screen.getByRole('button', { name: 'Получить пост' }));
 
@@ -77,7 +104,7 @@ describe('FetchButton', () => {
       }) as ReturnType<typeof getPost>
     );
 
-    render(<FetchButton />);
+    // render(<FetchButton />);
     await user.click(screen.getByRole('button', { name: 'Получить пост' }));
 
     // Проверяем промежуточное состояние
@@ -99,7 +126,7 @@ describe('FetchButton', () => {
 
     mockedGetPost.mockRejectedValueOnce(error);
 
-    render(<FetchButton />);
+    // render(<FetchButton />);
     await user.click(screen.getByRole('button', { name: 'Получить пост' }));
 
     await waitFor(() => {
@@ -116,7 +143,7 @@ describe('FetchButton', () => {
   test('кнопка "back" вызывает router.back()', async () => {
     const user = userEvent.setup();
 
-    render(<FetchButton />);
+    // render(<FetchButton />);
     await user.click(screen.getByRole('button', { name: 'back' }));
 
     expect(mockBack).toHaveBeenCalledTimes(1);
